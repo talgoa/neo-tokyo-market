@@ -4,6 +4,8 @@ import Identities from "./pages/Identities";
 
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Help from "./pages/Help";
 
 function App() {
   return (
@@ -12,8 +14,14 @@ function App() {
         <Route path="/admin">
           <Admin />
         </Route>
-        <Route path="/">
+        <Route path="/identities">
           <Identities />
+        </Route>
+        <Route path="/help">
+          <Help />
+        </Route>
+        <Route path="/">
+          <Home />
         </Route>
       </Switch>
     </Router>
