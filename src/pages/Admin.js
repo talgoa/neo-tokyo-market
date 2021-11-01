@@ -26,7 +26,7 @@ export default function Admin() {
 }
 
 async function updateAllPrices(Moralis) {
-  for (var i = 510; i <= 2500; i++) {
+  for (var i = 915; i <= 2500; i++) {
     const Identity = Moralis.Object.extend("Identity");
     const query = new Moralis.Query(Identity);
     query.equalTo("identityId", i);
