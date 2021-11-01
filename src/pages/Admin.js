@@ -26,14 +26,14 @@ export default function Admin() {
 }
 
 async function updateAllPrices(Moralis) {
-  for (var i = 915; i <= 2500; i++) {
+  for (var i = 2000; i <= 2500; i++) {
     const Identity = Moralis.Object.extend("Identity");
     const query = new Moralis.Query(Identity);
     query.equalTo("identityId", i);
     var identity = await query.first();
     if (identity == null) {
       console.log("Identity " + i + " not found");
-      return;
+      continue;
     }
 
     const asset = await Asset(Moralis, i);
@@ -103,20 +103,6 @@ async function updateAllIdentities(Moralis) {
     identity.save();
     index++;
   };
-}
-
-function readTextFile(file) {
-  var rawFile = new XMLHttpRequest();
-  rawFile.open("GET", file, false);
-  rawFile.onreadystatechange = function () {
-    if (rawFile.readyState === 4) {
-      if (rawFile.status === 200 || rawFile.status === 0) {
-        var allText = rawFile.responseText;
-        return allText;
-      }
-    }
-  };
-  rawFile.send(null);
 }
 
 async function findOrCreateIdentity(Moralis, id) {
