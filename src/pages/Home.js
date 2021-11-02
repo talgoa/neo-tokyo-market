@@ -40,9 +40,9 @@ export default function Home() {
         <LinkToDisabled>
           <span>Vaults -&gt;</span>
         </LinkToDisabled>
-        <LinkToDisabled>
-          <span>Item Caches -&gt;</span>
-        </LinkToDisabled>
+        <LinkTo>
+          <Link to="/itemcaches">Item Caches -&gt;</Link>
+        </LinkTo>
       </LinkContainer>
     </div>
   );

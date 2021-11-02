@@ -5,7 +5,7 @@ Moralis.Cloud.job("UpdateIdentityPrices", (request) => {
   // message: a function to update the status message of the job object
   const { params, headers, log, message } = request;
   message("I just started " + JSON.stringify(params));
-  // return updateIdentities(params.number, message);
+  return updateIdentities(50, message);
 });
 
 async function updateIdentities(number, message) {
@@ -17,12 +17,9 @@ async function updateIdentities(number, message) {
   const identities = await query.find();
   
 
-  message("Did find identities " + identities.length);
   for (const i in identities) {
     const asset = await Asset(Moralis, identities[i].get("identityId"), message);
     const price = PriceOfAsset(asset);
-
-    message("Found price [" + identities[i].get("identityId") + "]: " + price);
 
     identities[i].set("price", price);
     identities[i].set("lastUpdate", new Date());

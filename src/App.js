@@ -6,6 +6,7 @@ import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Help from "./pages/Help";
+import ItemCaches from "./pages/ItemCaches";
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
         </Route>
         <Route path="/identities">
           <Identities />
+        </Route>
+        <Route path="/itemcaches">
+          <ItemCaches />
         </Route>
         <Route path="/help">
           <Help />
