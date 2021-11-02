@@ -1,5 +1,16 @@
 import { useState } from "react";
 import { useMoralisQuery } from "react-moralis";
+import styled from "styled-components";
+
+const Container = styled.div`
+  text-align: left;
+  margin: 20px;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin: 10px;
+`;
 
 export default function Identities() {
   const [elite, setElite] = useState(false);
@@ -7,7 +18,6 @@ export default function Identities() {
   const { data, error, isLoading } = useMoralisQuery(
     "Identity",
     (query) => {
-      console.log("starting query");
       query.notEqualTo("price", null).ascending("price").limit(100);
       if (elite) {
         query.lessThanOrEqualTo("rarity", 500);
@@ -29,21 +39,21 @@ export default function Identities() {
   }
 
   return (
-    <div>
-      <label>
+    <Container>
+      <Label>
         <input type="checkbox" checked={elite} onChange={changeElite} />
         Elite
-      </label>
-      <label>
+      </Label>
+      <Label>
         <input
           type="checkbox"
           checked={unopenedVault}
           onChange={changeUnopenedVault}
         />
         Unopened Vault
-      </label>
+      </Label>
       <IdentitiesWith data={data} error={error} isLoading={isLoading} />
-    </div>
+    </Container>
   );
 }
 
@@ -73,11 +83,6 @@ function IdentitiesWith(props) {
             <th>Race</th>
             <th>Ability</th>
             <th>Eyes</th>
-            <th>Strength</th>
-            <th>Intelligence</th>
-            <th>Attractiveness</th>
-            <th>Tech Skill</th>
-            <th>Cool</th>
             <th>Credits</th>
             <th>Credit Yield</th>
             <th>Opened Vault</th>
@@ -85,18 +90,31 @@ function IdentitiesWith(props) {
           {data.map((identity) => (
             <tr>
               <td>{identity.get("identityId")}</td>
-              <td>{identity.get("price")}</td>
-              <td>{identity.get("rarity")}</td>
+              <td>
+                <a
+                  href={
+                    "https://opensea.io/assets/0x86357a19e5537a8fba9a004e555713bc943a66c0/" +
+                    identity.get("identityId")
+                  }
+                >
+                  {identity.get("price")}
+                </a>
+              </td>
+              <td>
+                <a
+                  href={
+                    "https://raritymon.com/Item-details?collection=neotokyo&id=" +
+                    identity.get("identityId")
+                  }
+                >
+                  {identity.get("rarity")}
+                </a>
+              </td>
               <td>{identity.get("class")}</td>
               <td>{identity.get("gender")}</td>
               <td>{identity.get("race")}</td>
               <td>{identity.get("ability")}</td>
               <td>{identity.get("eyes")}</td>
-              <td>{identity.get("strength")}</td>
-              <td>{identity.get("intelligence")}</td>
-              <td>{identity.get("attractiveness")}</td>
-              <td>{identity.get("techSkill")}</td>
-              <td>{identity.get("cool")}</td>
               <td>{identity.get("credits")}</td>
               <td>{identity.get("creditYield")}</td>
               <td>{identity.get("openedVault") ? "True" : "False"}</td>

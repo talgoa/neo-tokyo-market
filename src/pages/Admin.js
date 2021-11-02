@@ -1,6 +1,7 @@
 import React from "react";
 import { useMoralis } from "react-moralis";
 import text from "../resources/Characters.js";
+import textItemCaches from "../resources/ItemCaches.js";
 
 export default function Admin() {
   const { Moralis, isInitialized } = useMoralis();
@@ -11,6 +12,10 @@ export default function Admin() {
 
   function clickUpdateAllIdentities() {
     updateAllIdentities(Moralis);
+  }
+
+  function clickUpdateAllItemCaches() {
+    updateAllItemCaches(Moralis);
   }
 
   if (isInitialized) {
@@ -24,32 +29,17 @@ export default function Admin() {
             Update all identities
           </button>
         </div>
+        <div>
+          <button onClick={clickUpdateAllItemCaches}>
+            Update all item caches
+          </button>
+        </div>
       </div>
     );
   }
 
   return <div>Admin!</div>;
 }
-
-/*async function updateAllPrices(Moralis) {
-  for (var i = 1290; i <= 2500; i++) {
-    const Identity = Moralis.Object.extend("Identity");
-    const query = new Moralis.Query(Identity);
-    query.equalTo("identityId", i);
-    var identity = await query.first();
-    if (identity == null) {
-      console.log("Identity " + i + " not found");
-      continue;
-    }
-
-    const asset = await Asset(Moralis, i);
-    const price = PriceOfAsset(asset);
-
-    identity.set("price", price);
-    identity.set("lastUpdate", new Date());
-    identity.save();
-  }
-}*/
 
 async function updatePrices(Moralis, number) {
   const Identity = Moralis.Object.extend("Identity");
@@ -79,7 +69,7 @@ async function Asset(Moralis, id) {
     tokenId: id,
     page: 1,
   });
-  console.log("Found orders for " + id + " : " + asset);
+  console.log("Found orders for " + id + " : " + JSON.stringify(asset));
 
   return asset;
 }
@@ -132,6 +122,32 @@ async function updateAllIdentities(Moralis) {
   }
 }
 
+async function updateAllItemCaches(Moralis) {
+  const allItemCaches = textItemCaches;
+
+  const itemCaches = allItemCaches.split("\n");
+
+
+  for (const itemCacheCsv of itemCaches) {
+    console.log("Parsing " + itemCacheCsv);
+    const attributes = itemCacheCsv.split(",");
+    const itemCache = await findOrCreateItemCache(Moralis, parseInt(attributes[0]));
+
+    var rarity = parseInt(attributes[5]);
+    if (rarity === 2147483647) {
+      rarity = null;
+    }
+
+    itemCache.set("weapon", attributes[1]);
+    itemCache.set("apparel", attributes[2]);
+    itemCache.set("vehicle", attributes[3]);
+    itemCache.set("helm", attributes[4]);
+    itemCache.set("rarity", rarity);
+
+    itemCache.save();
+  }
+}
+
 async function findOrCreateIdentity(Moralis, id) {
   const Identity = Moralis.Object.extend("Identity");
   const query = new Moralis.Query(Identity);
@@ -142,4 +158,16 @@ async function findOrCreateIdentity(Moralis, id) {
     identity.set("identityId", id);
   }
   return identity;
+}
+
+async function findOrCreateItemCache(Moralis, id) {
+  const ItemCache = Moralis.Object.extend("ItemCache");
+  const query = new Moralis.Query(ItemCache);
+  query.equalTo("itemCacheId", id);
+  var itemCache = await query.first();
+  if (itemCache == null) {
+    itemCache = new ItemCache();
+    itemCache.set("itemCacheId", id);
+  }
+  return itemCache;
 }
