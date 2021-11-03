@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactDropdown from "react-dropdown";
 import { useMoralisQuery } from "react-moralis";
 import styled from "styled-components";
 
@@ -14,19 +15,31 @@ const Label = styled.label`
 
 export default function ItemCaches() {
   const [elite, setElite] = useState(false);
+  const sortByOptions = ["None", "Price", "Rarity"];
+  const [sortByOption, setSortByOption] = useState(sortByOptions[0]);
   const { data, error, isLoading } = useMoralisQuery(
     "ItemCache",
     (query) => {
+      if (sortByOption.value === "Price") {
+        query.notEqualTo("price", null).ascending("price").limit(100);
+      }
+      if (sortByOption.value === "Rarity") {
+        query.notEqualTo("rarity", null).ascending("rarity").limit(100);
+      }
       if (elite) {
         query.lessThanOrEqualTo("rarity", 500);
       }
       return query;
     },
-    [elite]
+    [elite, sortByOption]
   );
 
   function changeElite() {
     setElite(!elite);
+  }
+
+  function changeSortBy(option) {
+    setSortByOption(option);
   }
 
   return (
@@ -34,6 +47,16 @@ export default function ItemCaches() {
       <Label>
         <input type="checkbox" checked={elite} onChange={changeElite} />
         Elite
+      </Label>
+      <Label>
+        Sort by
+        <ReactDropdown
+          className="SortByDropdown"
+          options={sortByOptions}
+          onChange={changeSortBy}
+          value={sortByOption}
+          placeholder="Select an option"
+        />
       </Label>
       <ItemCachesWith data={data} error={error} isLoading={isLoading} />
     </Container>
@@ -72,7 +95,7 @@ function ItemCachesWith(props) {
               <td>
                 <a
                   href={
-                    "https://opensea.io/assets/0x86357a19e5537a8fba9a004e555713bc943a66c0/" +
+                    "https://opensea.io/assets/0x0938e3f7ac6d7f674fed551c93f363109bda3af9/" +
                     identity.get("itemCacheId")
                   }
                 >
@@ -82,7 +105,7 @@ function ItemCachesWith(props) {
               <td>
                 <a
                   href={
-                    "https://raritymon.com/Item-details?collection=neotokyo&id=" +
+                    "https://raritymon.com/Item-details?collection=neotokyoitems&id=" +
                     identity.get("itemCacheId")
                   }
                 >

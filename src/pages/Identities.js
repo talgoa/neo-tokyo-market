@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactDropdown from "react-dropdown";
 import { useMoralisQuery } from "react-moralis";
 import styled from "styled-components";
 
@@ -15,10 +16,17 @@ const Label = styled.label`
 export default function Identities() {
   const [elite, setElite] = useState(false);
   const [unopenedVault, setUnopenedVault] = useState(false);
+  const sortByOptions = ["None", "Price", "Rarity"];
+  const [sortByOption, setSortByOption] = useState(sortByOptions[0]);
   const { data, error, isLoading } = useMoralisQuery(
     "Identity",
     (query) => {
-      query.notEqualTo("price", null).ascending("price").limit(100);
+      if (sortByOption.value === "Price") {
+        query.notEqualTo("price", null).ascending("price").limit(100);
+      }
+      if (sortByOption.value === "Rarity") {
+        query.notEqualTo("rarity", null).ascending("rarity").limit(100);
+      }
       if (elite) {
         query.lessThanOrEqualTo("rarity", 500);
       }
@@ -27,7 +35,7 @@ export default function Identities() {
       }
       return query;
     },
-    [elite, unopenedVault]
+    [elite, unopenedVault, sortByOption]
   );
 
   function changeElite() {
@@ -36,6 +44,10 @@ export default function Identities() {
 
   function changeUnopenedVault() {
     setUnopenedVault(!unopenedVault);
+  }
+
+  function changeSortBy(option) {
+    setSortByOption(option);
   }
 
   return (
@@ -51,6 +63,16 @@ export default function Identities() {
           onChange={changeUnopenedVault}
         />
         Unopened Vault
+      </Label>
+      <Label>
+        Sort by
+        <ReactDropdown
+          className="SortByDropdown"
+          options={sortByOptions}
+          onChange={changeSortBy}
+          value={sortByOption}
+          placeholder="Select an option"
+        />
       </Label>
       <IdentitiesWith data={data} error={error} isLoading={isLoading} />
     </Container>

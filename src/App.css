@@ -32,3 +32,13 @@ a {
   background-color: #854b00;
   color: white;
 }
+
+.SortByDropdown {
+  width: 250px;
+  background-color: white;
+  color: black;
+}
+
+.SortByDropdown .Dropdown-placeholder {
+  border: solid 1px black;
+}
