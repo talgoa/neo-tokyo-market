@@ -16,13 +16,43 @@ async function updateIdentities(number, message) {
 
   const identities = await query.find();
   
-
-  for (const i in identities) {
-    const asset = await Asset(Moralis, identities[i].get("identityId"), message);
+  for (const identity of identities) {
+    const asset = await Asset(Moralis, "0x86357a19e5537a8fba9a004e555713bc943a66c0", identity.get("identityId"));
     const price = PriceOfAsset(asset);
 
-    identities[i].set("price", price);
-    identities[i].set("lastUpdate", new Date());
-    identities[i].save();
+    identity.set("price", price);
+    identity.set("lastUpdate", new Date());
+    identity.save();
   }
+
+  message("Finished " + number);
 }
+
+Moralis.Cloud.job("UpdateItemCachesPrices", (request) => {
+    // params: passed in the job call
+    // headers: from the request that triggered the job
+    // log: the Moralis Server logger passed in the request
+    // message: a function to update the status message of the job object
+    const { params, headers, log, message } = request;
+    message("I just started " + JSON.stringify(params));
+    return updateItemCaches(50, message);
+  });
+
+async function updateItemCaches(number, message) {
+    const ItemCache = Moralis.Object.extend("ItemCache");
+    const query = new Moralis.Query(ItemCache);
+    query.ascending("updatedAt");
+    query.limit(number);
+  
+    const itemCaches = await query.find();
+    
+    for (const itemCache of itemCaches) {
+      const asset = await Asset(Moralis, "0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
+      const price = PriceOfAsset(asset);
+  
+      itemCache.set("price", price);
+      itemCache.save();
+    }
+  
+    message("Finished " + number);
+  }

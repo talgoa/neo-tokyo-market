@@ -1,11 +1,11 @@
-async function Asset(Moralis, id, message) {
+async function Asset(Moralis, contract, id) {
   if (Moralis.Plugins === undefined) {
     return null;
   }
 
   var asset = await Moralis.Plugins.opensea.getOrders({
     network: "mainnet",
-    tokenAddress: "0x86357a19e5537a8fba9a004e555713bc943a66c0",
+    tokenAddress: contract,
     tokenId: id,
     page: 1,
   });
