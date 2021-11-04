@@ -1,5 +1,6 @@
 import React from "react";
 import { useMoralis } from "react-moralis";
+import { getAssetPrice } from "../openseaApi/openseaApi.js";
 import text from "../resources/Characters.js";
 import textItemCaches from "../resources/ItemCaches.js";
 
@@ -7,7 +8,11 @@ export default function Admin() {
   const { Moralis, isInitialized } = useMoralis();
 
   function clickUpdateAllPrices() {
-    updatePrices(Moralis, 200);
+    updatePrices(Moralis, 500);
+  }
+
+  function clickUpdateAllCachePrices() {
+    updateCachePrices(Moralis, 500);
   }
 
   function clickUpdateAllIdentities() {
@@ -21,8 +26,11 @@ export default function Admin() {
   if (isInitialized) {
     return (
       <div>
+      <div>
+        <button onClick={clickUpdateAllPrices}>Update all prices</button>
+      </div>
         <div>
-          <button onClick={clickUpdateAllPrices}>Update all prices</button>
+          <button onClick={clickUpdateAllCachePrices}>Update all cache prices</button>
         </div>
         <div>
           <button onClick={clickUpdateAllIdentities}>
@@ -49,8 +57,7 @@ async function updatePrices(Moralis, number) {
 
   const identities = await query.find();
   for (const i in identities) {
-    const asset = await Asset(Moralis, identities[i].get("identityId"));
-    const price = PriceOfAsset(asset);
+    const price = await getAssetPrice("0x86357a19e5537a8fba9a004e555713bc943a66c0", identities[i].get("identityId"));
 
     identities[i].set("price", price);
     identities[i].set("lastUpdate", new Date());
@@ -58,35 +65,18 @@ async function updatePrices(Moralis, number) {
   }
 }
 
-async function Asset(Moralis, id) {
-  if (Moralis.Plugins === undefined) {
-    return null;
-  }
+async function updateCachePrices(Moralis, number) {
+  const ItemCache = Moralis.Object.extend("ItemCache");
+  const query = new Moralis.Query(ItemCache);
+  query.ascending("updatedAt");
+  query.limit(number);
 
-  var asset = await Moralis.Plugins.opensea.getOrders({
-    network: "mainnet",
-    tokenAddress: "0x86357a19e5537a8fba9a004e555713bc943a66c0",
-    tokenId: id,
-    page: 1,
-  });
-  console.log("Found orders for " + id + " : " + JSON.stringify(asset));
+  const itemCache = await query.find();
+  for (const i in itemCache) {
+    const price = await getAssetPrice("0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache[i].get("itemCacheId"));
 
-  return asset;
-}
-
-function PriceOfAsset(asset) {
-  if (asset.orders[0] === undefined) {
-    return null;
-  }
-
-  if (asset.orders[0].expirationTime + "00" > Date.now().toString()) {
-    const price = asset.orders[0].basePrice / 1000000000000000000;
-    console.log("Found price: " + price);
-    if (asset.orders[0].waitingForBestCounterOrder) {
-      console.log("This is a bet, ignoring.");
-      return null;
-    }
-    return price;
+    itemCache[i].set("price", price);
+    itemCache[i].save();
   }
 }
 
@@ -127,11 +117,13 @@ async function updateAllItemCaches(Moralis) {
 
   const itemCaches = allItemCaches.split("\n");
 
-
   for (const itemCacheCsv of itemCaches) {
     console.log("Parsing " + itemCacheCsv);
     const attributes = itemCacheCsv.split(",");
-    const itemCache = await findOrCreateItemCache(Moralis, parseInt(attributes[0]));
+    const itemCache = await findOrCreateItemCache(
+      Moralis,
+      parseInt(attributes[0])
+    );
 
     var rarity = parseInt(attributes[5]);
     if (rarity === 2147483647) {

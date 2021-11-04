@@ -21,10 +21,10 @@ export default function ItemCaches() {
     "ItemCache",
     (query) => {
       if (sortByOption.value === "Price") {
-        query.notEqualTo("price", null).ascending("price").limit(100);
+        query.notEqualTo("price", null).ascending("price");
       }
       if (sortByOption.value === "Rarity") {
-        query.notEqualTo("rarity", null).ascending("rarity").limit(100);
+        query.notEqualTo("rarity", null).ascending("rarity");
       }
       if (elite) {
         query.lessThanOrEqualTo("rarity", 500);

@@ -1,3 +1,6 @@
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+
 Moralis.Cloud.job("UpdateIdentityPrices", (request) => {
   // params: passed in the job call
   // headers: from the request that triggered the job
@@ -19,10 +22,14 @@ async function updateIdentities(number, message) {
   for (const identity of identities) {
     const asset = await Asset(Moralis, "0x86357a19e5537a8fba9a004e555713bc943a66c0", identity.get("identityId"));
     const price = PriceOfAsset(asset);
+    //const price = await getAssetPrice("0x86357a19e5537a8fba9a004e555713bc943a66c0", identity.get("identityId"));
 
     identity.set("price", price);
     identity.set("lastUpdate", new Date());
     identity.save();
+
+    message("did set price " + identity.get("identityId") + " " + price)
+    await delay(1000);
   }
 
   message("Finished " + number);
@@ -49,10 +56,12 @@ async function updateItemCaches(number, message) {
     for (const itemCache of itemCaches) {
       const asset = await Asset(Moralis, "0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
       const price = PriceOfAsset(asset);
+      //const price = await getAssetPrice("0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
   
       itemCache.set("price", price);
       itemCache.save();
+
+      message("did set price " + itemCache.get("itemCacheId") + " " + price)
+      await delay(1000);
     }
-  
-    message("Finished " + number);
   }

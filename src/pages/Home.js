@@ -1,3 +1,4 @@
+import { useMoralisQuery } from "react-moralis";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -12,6 +13,19 @@ const LinkToDisabled = styled.span`
 
 const LinkContainer = styled.div`
   margin-top: 50px;
+`;
+
+const FloorPricesContainer = styled.div`
+  margin: 100px;
+  width: 100px;
+  text-align: left;
+`;
+
+const CommentsContainer = styled.div`
+  margin: 50px;
+  margin-top: 200px;
+  text-align: right;
+  color: grey;
 `;
 
 export default function Home() {
@@ -44,6 +58,70 @@ export default function Home() {
           <Link to="/itemcaches">Item Caches -&gt;</Link>
         </LinkTo>
       </LinkContainer>
+      <FloorPricesContainer>
+        <pre><b>Floor Prices</b></pre>
+        <pre>Identity <IdentityFloorPrice /></pre>
+        <pre>Elite Identity <EliteIdentityFloorPrice /></pre>
+      </FloorPricesContainer>
+      <CommentsContainer>
+        <pre>
+          For suggestions/comments/complaints, you can contact me on Discord
+          Talgoa#8526 Citizen #1216
+        </pre>
+        <pre>
+          If you want to support this website (the infrastructure is not
+          expensive, but not free), donations are accepted
+          0x753fbe134a7906918Ec18ca2B1107c00d13F79AB (eth, polygon, bsc, avax)
+        </pre>
+      </CommentsContainer>
     </div>
   );
+}
+
+function EliteIdentityFloorPrice() {
+  const { data, error, isLoading } = useMoralisQuery("Identity", (query) =>
+    query
+      .notEqualTo("price", null)
+      .ascending("price")
+      .lessThanOrEqualTo("rarity", 500)
+      .limit(1)
+  );
+
+  if (isLoading) {
+    return <pre>loading</pre>;
+  }
+
+  if (error) {
+    return <pre>Error {error}</pre>;
+  }
+
+  console.log(data);
+
+  if (data[0] === undefined) {
+    return <pre>not found</pre>;
+  }
+
+  return <span>{data[0].get("price")}</span>;
+}
+
+function IdentityFloorPrice() {
+  const { data, error, isLoading } = useMoralisQuery("Identity", (query) =>
+    query.notEqualTo("price", null).ascending("price").limit(1)
+  );
+
+  if (isLoading) {
+    return <pre>loading</pre>;
+  }
+
+  if (error) {
+    return <pre>Error {error}</pre>;
+  }
+
+  console.log(data);
+
+  if (data[0] === undefined) {
+    return <pre>not found</pre>;
+  }
+
+  return (<span>{data[0].get("price")}</span>);
 }
