@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Help from "./pages/Help";
 import ItemCaches from "./pages/ItemCaches";
 import Vaults from "./pages/Vaults";
+import Account from "./pages/Account";
 
 function App() {
   return (
@@ -27,6 +28,9 @@ function App() {
         </Route>
         <Route path="/help">
           <Help />
+        </Route>
+        <Route path="/account">
+          <Account />
         </Route>
         <Route path="/">
           <Home />
