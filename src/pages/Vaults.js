@@ -14,14 +14,14 @@ const Label = styled.label`
   margin: 10px;
 `;
 
-export default function Identities() {
+export default function Vaults() {
   const [elite, setElite] = useState(false);
-  const [unopenedVault, setUnopenedVault] = useState(false);
+  const [unopened, setUnopened] = useState(false);
   const [buyNow, setBuyNow] = useState(false);
   const sortByOptions = ["None", "Price", "Rarity"];
   const [sortByOption, setSortByOption] = useState(sortByOptions[0]);
   const { data, error, isLoading } = useMoralisQuery(
-    "Identity",
+    "Vault",
     (query) => {
       if (sortByOption.value === "Price") {
         query.notEqualTo("price", null).ascending("price");
@@ -32,23 +32,23 @@ export default function Identities() {
       if (elite) {
         query.lessThanOrEqualTo("rarity", 500);
       }
-      if (unopenedVault) {
-        query.equalTo("openedVault", false);
+      if (unopened) {
+        query.equalTo("openedBy", 0);
       }
       if (buyNow) {
         query.notEqualTo("price", null)
       }
       return query;
     },
-    [elite, unopenedVault, buyNow, sortByOption]
+    [elite, unopened, buyNow, sortByOption]
   );
 
   function changeElite() {
     setElite(!elite);
   }
 
-  function changeUnopenedVault() {
-    setUnopenedVault(!unopenedVault);
+  function changeUnopened() {
+    setUnopened(!unopened);
   }
 
   function changeBuyNow() {
@@ -61,18 +61,14 @@ export default function Identities() {
 
   return (
     <Container>
-      <PageHeader title="IDENTITIES"/>
+      <PageHeader title="VAULTS" />
       <Label>
         <input type="checkbox" checked={elite} onChange={changeElite} />
         Elite
       </Label>
       <Label>
-        <input
-          type="checkbox"
-          checked={unopenedVault}
-          onChange={changeUnopenedVault}
-        />
-        Unopened Vault
+        <input type="checkbox" checked={unopened} onChange={changeUnopened} />
+        Unopened
       </Label>
       <Label>
         <input type="checkbox" checked={buyNow} onChange={changeBuyNow} />
@@ -88,12 +84,12 @@ export default function Identities() {
           placeholder="Select an option"
         />
       </Label>
-      <IdentitiesWith data={data} error={error} isLoading={isLoading} />
+      <VaultsWith data={data} error={error} isLoading={isLoading} />
     </Container>
   );
 }
 
-function IdentitiesWith(props) {
+function VaultsWith(props) {
   const data = props.data;
   const isLoading = props.isLoading;
   const error = props.error;
@@ -114,23 +110,20 @@ function IdentitiesWith(props) {
             <th>ID</th>
             <th>Price</th>
             <th>Rarity</th>
-            <th>Class</th>
-            <th>Gender</th>
-            <th>Race</th>
-            <th>Ability</th>
-            <th>Eyes</th>
             <th>Credits</th>
-            <th>Credit Yield</th>
-            <th>Opened Vault</th>
+            <th>Supply Proportion</th>
+            <th>Additional Item</th>
+            <th>Credit Multiplier</th>
+            <th>Opened By</th>
           </tr>
           {data.map((identity) => (
             <tr>
-              <td>{identity.get("identityId")}</td>
+              <td>{identity.get("vaultId")}</td>
               <td>
                 <a
                   href={
-                    "https://opensea.io/assets/0x86357a19e5537a8fba9a004e555713bc943a66c0/" +
-                    identity.get("identityId")
+                    "https://opensea.io/assets/0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879/" +
+                    identity.get("vaultId")
                   }
                 >
                   {identity.get("price")}
@@ -139,21 +132,18 @@ function IdentitiesWith(props) {
               <td>
                 <a
                   href={
-                    "https://raritymon.com/Item-details?collection=neotokyo&id=" +
-                    identity.get("identityId")
+                    "https://raritymon.com/Item-details?collection=neotokyovault&id=" +
+                    identity.get("vaultId")
                   }
                 >
                   {identity.get("rarity")}
                 </a>
               </td>
-              <td>{identity.get("class")}</td>
-              <td>{identity.get("gender")}</td>
-              <td>{identity.get("race")}</td>
-              <td>{identity.get("ability")}</td>
-              <td>{identity.get("eyes")}</td>
               <td>{identity.get("credits")}</td>
-              <td>{identity.get("creditYield")}</td>
-              <td>{identity.get("openedVault") ? "True" : "False"}</td>
+              <td>{identity.get("creditSupplyProportion")}</td>
+              <td>{identity.get("additionalItem")}</td>
+              <td>{identity.get("creditMultiplier")}</td>
+              <td>{identity.get("openedBy")}</td>
             </tr>
           ))}
         </tbody>

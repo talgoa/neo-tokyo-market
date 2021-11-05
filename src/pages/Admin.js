@@ -3,12 +3,24 @@ import { useMoralis } from "react-moralis";
 import { getAssetPrice } from "../openseaApi/openseaApi.js";
 import text from "../resources/Characters.js";
 import textItemCaches from "../resources/ItemCaches.js";
+import textVaults from "../resources/Vaults.js";
 
 export default function Admin() {
-  const { Moralis, isInitialized } = useMoralis();
+  const {
+    authenticate,
+    logout,
+    isAuthenticated,
+    user,
+    Moralis,
+    isInitialized,
+  } = useMoralis();
 
   function clickUpdateAllPrices() {
     updatePrices(Moralis, 500);
+  }
+
+  function clickUpdateAllVaultPrices() {
+    updateVaultPrices(Moralis, 500);
   }
 
   function clickUpdateAllCachePrices() {
@@ -19,18 +31,41 @@ export default function Admin() {
     updateAllIdentities(Moralis);
   }
 
+  function clickUpdateAllVaults() {
+    updateAllVaults(Moralis);
+  }
+
   function clickUpdateAllItemCaches() {
     updateAllItemCaches(Moralis);
+  }
+
+  if (!isInitialized) {
+    return <div>Initializing</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div>
+        <button onClick={() => authenticate()}>Authenticate</button>
+      </div>
+    );
   }
 
   if (isInitialized) {
     return (
       <div>
-      <div>
-        <button onClick={clickUpdateAllPrices}>Update all prices</button>
-      </div>
         <div>
-          <button onClick={clickUpdateAllCachePrices}>Update all cache prices</button>
+          <button onClick={clickUpdateAllPrices}>Update all prices</button>
+        </div>
+        <div>
+          <button onClick={clickUpdateAllVaultPrices}>
+            Update all vault prices
+          </button>
+        </div>
+        <div>
+          <button onClick={clickUpdateAllCachePrices}>
+            Update all cache prices
+          </button>
         </div>
         <div>
           <button onClick={clickUpdateAllIdentities}>
@@ -38,15 +73,22 @@ export default function Admin() {
           </button>
         </div>
         <div>
+          <button onClick={clickUpdateAllVaults}>
+            Update all vaults
+          </button>
+        </div>
+        <div>
           <button onClick={clickUpdateAllItemCaches}>
             Update all item caches
           </button>
         </div>
+        <div>
+          Admin! {user.get("ethAddress")}{" "}
+          <button onClick={() => logout()}>Logout</button>
+        </div>
       </div>
     );
   }
-
-  return <div>Admin!</div>;
 }
 
 async function updatePrices(Moralis, number) {
@@ -57,11 +99,32 @@ async function updatePrices(Moralis, number) {
 
   const identities = await query.find();
   for (const i in identities) {
-    const price = await getAssetPrice("0x86357a19e5537a8fba9a004e555713bc943a66c0", identities[i].get("identityId"));
+    const price = await getAssetPrice(
+      "0x86357a19e5537a8fba9a004e555713bc943a66c0",
+      identities[i].get("identityId")
+    );
 
     identities[i].set("price", price);
     identities[i].set("lastUpdate", new Date());
     identities[i].save();
+  }
+}
+
+async function updateVaultPrices(Moralis, number) {
+  const Vault = Moralis.Object.extend("Vault");
+  const query = new Moralis.Query(Vault);
+  query.ascending("updatedAt");
+  query.limit(number);
+
+  const vault = await query.find();
+  for (const i in vault) {
+    const price = await getAssetPrice(
+      "0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879",
+      vault[i].get("vaultId")
+    );
+
+    vault[i].set("price", price);
+    vault[i].save();
   }
 }
 
@@ -73,7 +136,10 @@ async function updateCachePrices(Moralis, number) {
 
   const itemCache = await query.find();
   for (const i in itemCache) {
-    const price = await getAssetPrice("0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache[i].get("itemCacheId"));
+    const price = await getAssetPrice(
+      "0x0938e3f7ac6d7f674fed551c93f363109bda3af9",
+      itemCache[i].get("itemCacheId")
+    );
 
     itemCache[i].set("price", price);
     itemCache[i].save();
@@ -109,6 +175,35 @@ async function updateAllIdentities(Moralis) {
 
     identity.save();
     index++;
+  }
+}
+
+async function updateAllVaults(Moralis) {
+  const allVaults = textVaults;
+
+  const vaults = allVaults.split("\n");
+
+  for (const vaultCsv of vaults) {
+    console.log("Parsing " + vaultCsv);
+    const attributes = vaultCsv.split(",");
+    const vault = await findOrCreateVault(
+      Moralis,
+      parseInt(attributes[0])
+    );
+
+    var rarity = parseInt(attributes[6]);
+    if (rarity === 2147483647) {
+      rarity = null;
+    }
+
+    vault.set("credits", parseInt(attributes[1]));
+    vault.set("creditSupplyProportion", parseFloat(attributes[2]));
+    vault.set("additionalItem", attributes[3]);
+    vault.set("creditMultiplier", attributes[4]);
+    vault.set("openedBy", attributes[5]);
+    vault.set("rarity", rarity);
+
+    vault.save();
   }
 }
 
@@ -150,6 +245,18 @@ async function findOrCreateIdentity(Moralis, id) {
     identity.set("identityId", id);
   }
   return identity;
+}
+
+async function findOrCreateVault(Moralis, id) {
+  const Vault = Moralis.Object.extend("Vault");
+  const query = new Moralis.Query(Vault);
+  query.equalTo("vaultId", id);
+  var vault = await query.first();
+  if (vault == null) {
+    vault = new Vault();
+    vault.set("vaultId", id);
+  }
+  return vault;
 }
 
 async function findOrCreateItemCache(Moralis, id) {

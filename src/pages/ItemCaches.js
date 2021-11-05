@@ -2,6 +2,7 @@ import { useState } from "react";
 import ReactDropdown from "react-dropdown";
 import { useMoralisQuery } from "react-moralis";
 import styled from "styled-components";
+import PageHeader from "../components/PageHeader";
 
 const Container = styled.div`
   text-align: left;
@@ -15,6 +16,7 @@ const Label = styled.label`
 
 export default function ItemCaches() {
   const [elite, setElite] = useState(false);
+  const [buyNow, setBuyNow] = useState(false);
   const sortByOptions = ["None", "Price", "Rarity"];
   const [sortByOption, setSortByOption] = useState(sortByOptions[0]);
   const { data, error, isLoading } = useMoralisQuery(
@@ -29,13 +31,20 @@ export default function ItemCaches() {
       if (elite) {
         query.lessThanOrEqualTo("rarity", 500);
       }
+      if (buyNow) {
+        query.notEqualTo("price", null)
+      }
       return query;
     },
-    [elite, sortByOption]
+    [elite, buyNow, sortByOption]
   );
 
   function changeElite() {
     setElite(!elite);
+  }
+
+  function changeBuyNow() {
+    setBuyNow(!buyNow);
   }
 
   function changeSortBy(option) {
@@ -44,9 +53,14 @@ export default function ItemCaches() {
 
   return (
     <Container>
+      <PageHeader title="ITEM CACHES"/>
       <Label>
         <input type="checkbox" checked={elite} onChange={changeElite} />
         Elite
+      </Label>
+      <Label>
+        <input type="checkbox" checked={buyNow} onChange={changeBuyNow} />
+        Buy Now
       </Label>
       <Label>
         Sort by

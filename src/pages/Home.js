@@ -6,10 +6,11 @@ const LinkTo = styled.span`
   margin: 10px;
 `;
 
+/*
 const LinkToDisabled = styled.span`
   margin: 20px;
   color: #b3b3b3;
-`;
+`;*/
 
 const LinkContainer = styled.div`
   margin-top: 50px;
@@ -51,17 +52,23 @@ export default function Home() {
         <LinkTo>
           <Link to="/identities">Identities -&gt;</Link>
         </LinkTo>
-        <LinkToDisabled>
-          <span>Vaults -&gt;</span>
-        </LinkToDisabled>
+        <LinkTo>
+          <Link to="/vaults">Vaults -&gt;</Link>
+        </LinkTo>
         <LinkTo>
           <Link to="/itemcaches">Item Caches -&gt;</Link>
         </LinkTo>
       </LinkContainer>
       <FloorPricesContainer>
-        <pre><b>Floor Prices</b></pre>
-        <pre>Identity <IdentityFloorPrice /></pre>
-        <pre>Elite Identity <EliteIdentityFloorPrice /></pre>
+        <pre>
+          <b>Floor Prices</b>
+        </pre>
+        <pre>
+          Identity <IdentityFloorPrice />
+        </pre>
+        <pre>
+          Elite Identity <EliteIdentityFloorPrice />
+        </pre>
       </FloorPricesContainer>
       <CommentsContainer>
         <pre>
@@ -123,5 +130,5 @@ function IdentityFloorPrice() {
     return <pre>not found</pre>;
   }
 
-  return (<span>{data[0].get("price")}</span>);
+  return <span>{data[0].get("price")}</span>;
 }

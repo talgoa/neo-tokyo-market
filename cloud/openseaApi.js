@@ -1,8 +1,8 @@
 async function getAsset(contract, token) {
-  const result = await fetch(
-    "https://api.opensea.io/api/v1/asset/" + contract + "/" + token + "/"
+  const result = await Moralis.Cloud.httpRequest(
+    {url: "https://api.opensea.io/api/v1/asset/" + contract + "/" + token + "/"}
   );
-  const json = await result.json();
+  const json = await result.text.json();
 
   return json;
 }

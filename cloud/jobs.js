@@ -26,7 +26,7 @@ async function updateIdentities(number, message) {
 
     identity.set("price", price);
     identity.set("lastUpdate", new Date());
-    identity.save();
+    identity.save(null, { useMasterKey: true });
 
     message("did set price " + identity.get("identityId") + " " + price)
     await delay(1000);
@@ -36,10 +36,6 @@ async function updateIdentities(number, message) {
 }
 
 Moralis.Cloud.job("UpdateItemCachesPrices", (request) => {
-    // params: passed in the job call
-    // headers: from the request that triggered the job
-    // log: the Moralis Server logger passed in the request
-    // message: a function to update the status message of the job object
     const { params, headers, log, message } = request;
     message("I just started " + JSON.stringify(params));
     return updateItemCaches(50, message);
@@ -59,7 +55,7 @@ async function updateItemCaches(number, message) {
       //const price = await getAssetPrice("0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
   
       itemCache.set("price", price);
-      itemCache.save();
+      itemCache.save(null, { useMasterKey: true });
 
       message("did set price " + itemCache.get("itemCacheId") + " " + price)
       await delay(1000);
