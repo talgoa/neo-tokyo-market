@@ -200,7 +200,7 @@ async function updateAllVaults(Moralis) {
     vault.set("creditSupplyProportion", parseFloat(attributes[2]));
     vault.set("additionalItem", attributes[3]);
     vault.set("creditMultiplier", attributes[4]);
-    vault.set("openedBy", attributes[5]);
+    vault.set("openedBy", parseInt(attributes[5]));
     vault.set("rarity", rarity);
 
     vault.save();

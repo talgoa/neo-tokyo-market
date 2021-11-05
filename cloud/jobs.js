@@ -35,29 +35,56 @@ async function updateIdentities(number, message) {
   message("Finished " + number);
 }
 
-Moralis.Cloud.job("UpdateItemCachesPrices", (request) => {
+Moralis.Cloud.job("UpdateVaultsPrices", (request) => {
     const { params, headers, log, message } = request;
     message("I just started " + JSON.stringify(params));
-    return updateItemCaches(50, message);
+    return updateVaults(50, message);
   });
 
-async function updateItemCaches(number, message) {
-    const ItemCache = Moralis.Object.extend("ItemCache");
-    const query = new Moralis.Query(ItemCache);
+async function updateVaults(number, message) {
+    const Vault = Moralis.Object.extend("Vault");
+    const query = new Moralis.Query(Vault);
     query.ascending("updatedAt");
     query.limit(number);
   
-    const itemCaches = await query.find();
+    const vaults = await query.find();
     
-    for (const itemCache of itemCaches) {
-      const asset = await Asset(Moralis, "0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
+    for (const vault of vaults) {
+      const asset = await Asset(Moralis, "0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879", vault.get("vaultId"));
       const price = PriceOfAsset(asset);
-      //const price = await getAssetPrice("0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
+      //const price = await getAssetPrice("0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879", vault.get("vaultId"));
   
-      itemCache.set("price", price);
-      itemCache.save(null, { useMasterKey: true });
+      vault.set("price", price);
+      vault.save(null, { useMasterKey: true });
 
-      message("did set price " + itemCache.get("itemCacheId") + " " + price)
+      message("did set price " + vault.get("vaultId") + " " + price)
       await delay(1000);
     }
   }
+
+  Moralis.Cloud.job("UpdateItemCachesPrices", (request) => {
+      const { params, headers, log, message } = request;
+      message("I just started " + JSON.stringify(params));
+      return updateItemCaches(50, message);
+    });
+  
+  async function updateItemCaches(number, message) {
+      const ItemCache = Moralis.Object.extend("ItemCache");
+      const query = new Moralis.Query(ItemCache);
+      query.ascending("updatedAt");
+      query.limit(number);
+    
+      const itemCaches = await query.find();
+      
+      for (const itemCache of itemCaches) {
+        const asset = await Asset(Moralis, "0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
+        const price = PriceOfAsset(asset);
+        //const price = await getAssetPrice("0x0938e3f7ac6d7f674fed551c93f363109bda3af9", itemCache.get("itemCacheId"));
+    
+        itemCache.set("price", price);
+        itemCache.save(null, { useMasterKey: true });
+  
+        message("did set price " + itemCache.get("itemCacheId") + " " + price)
+        await delay(1000);
+      }
+    }
