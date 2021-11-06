@@ -69,6 +69,15 @@ export default function Home() {
         <pre>
           Elite Identity <EliteIdentityFloorPrice />
         </pre>
+        <pre>
+          Vault <VaultFloorPrice />
+        </pre>
+        <pre>
+          Unopened Vault <UnopenedVaultFloorPrice />
+        </pre>
+        <pre>
+          Item Cache <ItemCacheFloorPrice />
+        </pre>
       </FloorPricesContainer>
       <CommentsContainer>
         <pre>
@@ -83,6 +92,28 @@ export default function Home() {
       </CommentsContainer>
     </div>
   );
+}
+
+function IdentityFloorPrice() {
+  const { data, error, isLoading } = useMoralisQuery("Identity", (query) =>
+    query.notEqualTo("price", null).ascending("price").limit(1)
+  );
+
+  if (isLoading) {
+    return <pre>loading</pre>;
+  }
+
+  if (error) {
+    return <pre>Error {error}</pre>;
+  }
+
+  console.log(data);
+
+  if (data[0] === undefined) {
+    return <pre>not found</pre>;
+  }
+
+  return <span>{data[0].get("price")}</span>;
 }
 
 function EliteIdentityFloorPrice() {
@@ -111,8 +142,52 @@ function EliteIdentityFloorPrice() {
   return <span>{data[0].get("price")}</span>;
 }
 
-function IdentityFloorPrice() {
-  const { data, error, isLoading } = useMoralisQuery("Identity", (query) =>
+function VaultFloorPrice() {
+  const { data, error, isLoading } = useMoralisQuery("Vault", (query) =>
+    query.notEqualTo("price", null).ascending("price").limit(1)
+  );
+
+  if (isLoading) {
+    return <pre>loading</pre>;
+  }
+
+  if (error) {
+    return <pre>Error {error}</pre>;
+  }
+
+  console.log(data);
+
+  if (data[0] === undefined) {
+    return <pre>not found</pre>;
+  }
+
+  return <span>{data[0].get("price")}</span>;
+}
+
+function UnopenedVaultFloorPrice() {
+  const { data, error, isLoading } = useMoralisQuery("Vault", (query) =>
+    query.equalTo("openedBy", 0).notEqualTo("price", null).ascending("price").limit(1)
+  );
+
+  if (isLoading) {
+    return <pre>loading</pre>;
+  }
+
+  if (error) {
+    return <pre>Error {error}</pre>;
+  }
+
+  console.log(data);
+
+  if (data[0] === undefined) {
+    return <pre>not found</pre>;
+  }
+
+  return <span>{data[0].get("price")}</span>;
+}
+
+function ItemCacheFloorPrice() {
+  const { data, error, isLoading } = useMoralisQuery("ItemCache", (query) =>
     query.notEqualTo("price", null).ascending("price").limit(1)
   );
 
