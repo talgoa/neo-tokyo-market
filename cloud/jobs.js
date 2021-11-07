@@ -50,15 +50,20 @@ async function updateVaults(number, message) {
     const vaults = await query.find();
     
     for (const vault of vaults) {
-      const asset = await Asset(Moralis, "0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879", vault.get("vaultId"));
+      const vaultId = vault.get("vaultId");
+      const asset = await Asset(Moralis, "0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879", vaultId);
       const price = PriceOfAsset(asset);
-      //const price = await getAssetPrice("0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879", vault.get("vaultId"));
+      //const price = await getAssetPrice("0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879", vaultId);
   
       vault.set("price", price);
       vault.save(null, { useMasterKey: true });
 
-      message("did set price " + vault.get("vaultId") + " " + price)
+      message("did set price " + vaultId + " " + price)
       await delay(1000);
+
+      const openedBy = await vaultBoxOpenedByIdentity(vaultId);
+      vault.set("openedBy", openedBy);
+      message("did set openedBy " + vaultId + " " + openedBy)
     }
   }
 
