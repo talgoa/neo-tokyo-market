@@ -389,26 +389,22 @@ const BytesABI = [
   },
 ];
 
-const vaultBoxOpenedByIdentityOptions = {
-  chain: "Eth",
-  address: "0x7d647b1A0dcD5525e9C6B3D14BE58f27674f8c95",
-  function_name: "vaultBoxOpenedByIdentity",
-  params: { "": "1216" },
-  abi: BytesABI,
-};
-
 async function vaultBoxOpenedByIdentity(id) {
   const web3 = Moralis.web3ByChain("0x1");
   const contract = new web3.eth.Contract(BytesABI, "0x7d647b1A0dcD5525e9C6B3D14BE58f27674f8c95");
-  const result = contract.methods.vaultBoxOpenedByIdentity(id).call();
-  return result;
+  return contract.methods.vaultBoxOpenedByIdentity(id).call();
+}
+
+async function identityBoxOpened(id) {
+  const web3 = Moralis.web3ByChain("0x1");
+  const contract = new web3.eth.Contract(BytesABI, "0x7d647b1A0dcD5525e9C6B3D14BE58f27674f8c95");
+  return contract.methods.identityBoxOpened(id).call();
 }
 
 Moralis.Cloud.define("vaultBoxOpenedByIdentity", async (request) => {
   return vaultBoxOpenedByIdentity(1216);
 });
 
-Moralis.Cloud.define("test_web3", (request) => {
-  const web3 = Moralis.web3ByChain('0x38')
-  return 1;
-})
+Moralis.Cloud.define("identityBoxOpened", async (request) => {
+  return identityBoxOpened(1216);
+});

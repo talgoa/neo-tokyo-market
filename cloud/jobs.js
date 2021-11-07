@@ -14,21 +14,24 @@ Moralis.Cloud.job("UpdateIdentityPrices", (request) => {
 async function updateIdentities(number, message) {
   const Identity = Moralis.Object.extend("Identity");
   const query = new Moralis.Query(Identity);
-  query.ascending("lastUpdate");
+  query.ascending("updatedAt");
   query.limit(number);
 
   const identities = await query.find();
   
   for (const identity of identities) {
-    const asset = await Asset(Moralis, "0x86357a19e5537a8fba9a004e555713bc943a66c0", identity.get("identityId"));
+    const identityId = identity.get("identityId");
+    const asset = await Asset(Moralis, "0x86357a19e5537a8fba9a004e555713bc943a66c0", identityId);
     const price = PriceOfAsset(asset);
-    //const price = await getAssetPrice("0x86357a19e5537a8fba9a004e555713bc943a66c0", identity.get("identityId"));
+    //const price = await getAssetPrice("0x86357a19e5537a8fba9a004e555713bc943a66c0", identityId);
 
     identity.set("price", price);
-    identity.set("lastUpdate", new Date());
-    identity.save(null, { useMasterKey: true });
 
-    message("did set price " + identity.get("identityId") + " " + price)
+    const openedBox = await identityBoxOpened(identityId);
+    identity.set("openedBox", parseInt(openedBox));
+    message("did set openedBox for identity " + identityId + " : " + openedBox);
+     
+    identity.save(null, { useMasterKey: true });
     await delay(1000);
   }
 
@@ -56,14 +59,13 @@ async function updateVaults(number, message) {
       //const price = await getAssetPrice("0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879", vaultId);
   
       vault.set("price", price);
-      vault.save(null, { useMasterKey: true });
-
-      message("did set price " + vaultId + " " + price)
-      await delay(1000);
 
       const openedBy = await vaultBoxOpenedByIdentity(vaultId);
-      vault.set("openedBy", openedBy);
-      message("did set openedBy " + vaultId + " " + openedBy)
+      vault.set("openedBy", parseInt(openedBy));
+      message("did set openedBy for vault " + vaultId + " : " + openedBy)
+
+      vault.save(null, { useMasterKey: true });
+      await delay(1000);
     }
   }
 
