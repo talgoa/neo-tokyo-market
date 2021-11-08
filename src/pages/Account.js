@@ -1,6 +1,9 @@
 import { useMoralisCloudFunction } from "react-moralis";
 import { Route, Switch, useParams, useRouteMatch } from "react-router";
+import { useState } from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
 
 const Container = styled.div`
   margin: 20px;
@@ -17,18 +20,35 @@ const AverageRarity = styled.span`
   font-weight: bold;
 `;
 
+const CheckButton = styled.button`
+  background-color: black;
+  color: white;
+  margin-left: 10px;
+`;
+
 export default function Account() {
   let match = useRouteMatch();
+  const [ethAddress, setEthAddress] = useState("");
 
   return (
     <div>
-      <h2>Account</h2>
+      <PageHeader title="ACCOUNT"/>
       <Switch>
         <Route path={`${match.path}/:ethAddress`}>
           <SpecificAccount />
         </Route>
         <Route path={match.path}>
           <h3>Enter your ETH address.</h3>
+          <input
+            value={ethAddress}
+            label="Enter your name"
+            onChange={(e) => {
+              setEthAddress(e.target.value);
+            }}
+          />
+          <Link to={`${match.url}/${ethAddress}`} >
+            <CheckButton type="button">Check!</CheckButton>
+          </Link>
         </Route>
       </Switch>
     </div>
@@ -47,18 +67,20 @@ function SpecificAccount() {
     ethAddress: ethAddress,
   });
 
-  if (vaults !== null) {
-    console.log("did get vaults!!");
-  }
-
   const identitiesComponent =
     identities === null ? (
       <div>
         <Title>Identities...</Title>
       </div>
+    ) : identities[0] === undefined ? (
+      <div>
+        <Title>Identities: not found</Title>
+      </div>
     ) : (
       <div>
-        <Title>Identities</Title>{" "}
+        <Title>
+          Identities ID <Rarity>Rarity</Rarity>
+        </Title>{" "}
         {identities.map((identity) => (
           <div>
             {identity.attributes.identityId}{" "}
@@ -73,9 +95,15 @@ function SpecificAccount() {
       <div>
         <Title>Vaults...</Title>
       </div>
+    ) : vaults[0] === undefined ? (
+      <div>
+        <Title>Vaults: not found</Title>
+      </div>
     ) : (
       <div>
-        <Title>Vaults</Title>{" "}
+        <Title>
+          Vaults ID <Rarity>Rarity</Rarity>
+        </Title>{" "}
         {vaults.map((vault) => (
           <div>
             {vault.attributes.vaultId}{" "}
@@ -90,9 +118,15 @@ function SpecificAccount() {
       <div>
         <Title>Item Caches...</Title>
       </div>
+    ) : itemCaches[0] === undefined ? (
+      <div>
+        <Title>Item Caches: not found</Title>
+      </div>
     ) : (
       <div>
-        <Title>Item Caches</Title>{" "}
+        <Title>
+          Item Caches ID <Rarity>Rarity</Rarity>
+        </Title>{" "}
         {itemCaches.map((itemCache) => (
           <div>
             {itemCache.attributes.itemCacheId}{" "}
@@ -107,9 +141,17 @@ function SpecificAccount() {
       <div>
         <Title>Average...</Title>
       </div>
+    ) : identities[0] === undefined ||
+      vaults[0] === undefined ||
+      itemCaches[0] === undefined ? (
+      <div>
+        <Title>Average: not one of each.</Title>
+      </div>
     ) : (
       <div>
-        <Title>Average</Title>
+        <Title>
+          Average <Rarity>Rarity</Rarity>
+        </Title>
         <AverageRarity>
           {(identities[0].attributes.rarity +
             vaults[0].attributes.rarity +

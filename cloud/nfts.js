@@ -27,6 +27,7 @@ async function getIdentities(ethAddress) {
 
   const query = new Moralis.Query("Identity");
   query.containedIn("identityId", ids);
+  query.ascending("rarity");
   return await query.find();
 }
 
@@ -39,6 +40,7 @@ async function getVaults(ethAddress) {
 
   const query = new Moralis.Query("Vault");
   query.containedIn("vaultId", ids);
+  query.ascending("rarity");
   return await query.find();
 }
 
@@ -51,6 +53,7 @@ async function getItemCaches(ethAddress) {
 
   const query = new Moralis.Query("ItemCache");
   query.containedIn("itemCacheId", ids);
+  query.ascending("rarity");
   return await query.find();
 }
 
