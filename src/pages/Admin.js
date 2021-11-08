@@ -94,7 +94,7 @@ export default function Admin() {
 async function updatePrices(Moralis, number) {
   const Identity = Moralis.Object.extend("Identity");
   const query = new Moralis.Query(Identity);
-  query.ascending("lastUpdate");
+  query.ascending("updatedAt");
   query.limit(number);
 
   const identities = await query.find();
@@ -105,7 +105,6 @@ async function updatePrices(Moralis, number) {
     );
 
     identities[i].set("price", price);
-    identities[i].set("lastUpdate", new Date());
     identities[i].save();
   }
 }
