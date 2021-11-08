@@ -5,6 +5,32 @@ import text from "../resources/Characters.js";
 import textItemCaches from "../resources/ItemCaches.js";
 import textVaults from "../resources/Vaults.js";
 
+const hasWon = `1888
+981
+94
+1538
+1999
+1154
+643
+1267
+1989
+1114
+839
+2089
+1334
+1382
+1218
+2158
+445
+1072
+204
+934
+631
+2002
+1771
+429
+1319`;
+
 export default function Admin() {
   const {
     authenticate,
@@ -37,6 +63,10 @@ export default function Admin() {
 
   function clickUpdateAllItemCaches() {
     updateAllItemCaches(Moralis);
+  }
+
+  function clickUpdateHasWon() {
+    updateHasWon(Moralis);
   }
 
   if (!isInitialized) {
@@ -80,6 +110,11 @@ export default function Admin() {
         <div>
           <button onClick={clickUpdateAllItemCaches}>
             Update all item caches
+          </button>
+        </div>
+        <div>
+          <button onClick={clickUpdateHasWon}>
+            Update has won
           </button>
         </div>
         <div>
@@ -231,6 +266,22 @@ async function updateAllItemCaches(Moralis) {
     itemCache.set("rarity", rarity);
 
     itemCache.save();
+  }
+}
+
+async function updateHasWon(Moralis) {
+  const winners = hasWon.split("\n");
+
+  for (const winner of winners) {
+    const vault = await findOrCreateVault(
+      Moralis,
+      parseInt(winner)
+    );
+
+    console.log("setting hasWon for " + winner);
+
+    vault.set("hasWon", true);
+    vault.save();
   }
 }
 

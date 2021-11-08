@@ -17,6 +17,7 @@ const Label = styled.label`
 export default function Vaults() {
   const [elite, setElite] = useState(false);
   const [unopened, setUnopened] = useState(false);
+  const [hasWon, setHasWon] = useState(false);
   const [buyNow, setBuyNow] = useState(false);
   const sortByOptions = ["None", "Price", "Rarity"];
   const [sortByOption, setSortByOption] = useState(sortByOptions[0]);
@@ -35,12 +36,15 @@ export default function Vaults() {
       if (unopened) {
         query.equalTo("openedBy", 0);
       }
+      if (hasWon) {
+        query.equalTo("hasWon", true);
+      }
       if (buyNow) {
         query.notEqualTo("price", null)
       }
       return query;
     },
-    [elite, unopened, buyNow, sortByOption]
+    [elite, unopened, hasWon, buyNow, sortByOption]
   );
 
   function changeElite() {
@@ -49,6 +53,10 @@ export default function Vaults() {
 
   function changeUnopened() {
     setUnopened(!unopened);
+  }
+
+  function changeHasWon() {
+    setHasWon(!hasWon);
   }
 
   function changeBuyNow() {
@@ -69,6 +77,10 @@ export default function Vaults() {
       <Label>
         <input type="checkbox" checked={unopened} onChange={changeUnopened} />
         Unopened
+      </Label>
+      <Label>
+        <input type="checkbox" checked={hasWon} onChange={changeHasWon} />
+        Has Won
       </Label>
       <Label>
         <input type="checkbox" checked={buyNow} onChange={changeBuyNow} />
@@ -115,6 +127,7 @@ function VaultsWith(props) {
             <th>Additional Item</th>
             <th>Credit Multiplier</th>
             <th>Opened By</th>
+            <th>Has won</th>
           </tr>
           {data.map((identity) => (
             <tr>
@@ -144,6 +157,7 @@ function VaultsWith(props) {
               <td>{identity.get("additionalItem")}</td>
               <td>{identity.get("creditMultiplier")}</td>
               <td>{identity.get("openedBy")}</td>
+              <td>{identity.get("hasWon")}</td>
             </tr>
           ))}
         </tbody>
