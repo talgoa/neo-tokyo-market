@@ -33,7 +33,7 @@ export default function Identities() {
         query.lessThanOrEqualTo("rarity", 500);
       }
       if (unopenedVault) {
-        query.equalTo("openedVault", false);
+        query.equalTo("openedBox", 0);
       }
       if (buyNow) {
         query.notEqualTo("price", null)
@@ -153,7 +153,7 @@ function IdentitiesWith(props) {
               <td>{identity.get("eyes")}</td>
               <td>{identity.get("credits")}</td>
               <td>{identity.get("creditYield")}</td>
-              <td>{identity.get("openedVault") ? "True" : "False"}</td>
+              <td>{identity.get("openedBox")}</td>
             </tr>
           ))}
         </tbody>
