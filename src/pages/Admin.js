@@ -69,6 +69,11 @@ export default function Admin() {
     updateHasWon(Moralis);
   }
 
+  async function clickCheckRemoteFunction() {
+    const result = await Moralis.Cloud.run("itemCacheClaimed");
+    console.log(result);
+  }
+
   if (!isInitialized) {
     return <div>Initializing</div>;
   }
@@ -115,6 +120,11 @@ export default function Admin() {
         <div>
           <button onClick={clickUpdateHasWon}>
             Update has won
+          </button>
+        </div>
+        <div>
+          <button onClick={clickCheckRemoteFunction}>
+            Check Remote Function
           </button>
         </div>
         <div>
@@ -277,9 +287,14 @@ async function updateHasWon(Moralis) {
       Moralis,
       parseInt(winner)
     );
+    const price = await getAssetPrice(
+      "0xab0b0dd7e4eab0f9e31a539074a03f1c1be80879",
+      parseInt(winner)
+    );
 
-    console.log("setting hasWon for " + winner);
+    console.log("setting hasWon for " + winner + " price : " + price);
 
+    vault.set("price", price);
     vault.set("hasWon", true);
     vault.save();
   }

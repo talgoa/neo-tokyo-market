@@ -62,7 +62,10 @@ async function updateVaults(number, message) {
 
       const openedBy = await vaultBoxOpenedByIdentity(vaultId);
       vault.set("openedBy", parseInt(openedBy));
-      message("did set openedBy for vault " + vaultId + " : " + openedBy)
+
+      const claimedBox = await itemCacheClaimedByVault(vaultId);
+      vault.set("claimedBox", parseInt(claimedBox))
+      message("did set claimed box for vault " + vaultId + " : " + claimedBox);
 
       vault.save(null, { useMasterKey: true });
       await delay(1000);
