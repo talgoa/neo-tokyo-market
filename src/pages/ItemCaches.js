@@ -1,8 +1,10 @@
 import { useState } from "react";
 import ReactDropdown from "react-dropdown";
 import { useMoralisQuery } from "react-moralis";
+import { Route, Switch, useParams, useRouteMatch } from "react-router";
 import styled from "styled-components";
 import PageHeader from "../components/PageHeader";
+import PageNavigation from "../components/PageNavigation";
 
 const Container = styled.div`
   text-align: left;
@@ -15,6 +17,26 @@ const Label = styled.label`
 `;
 
 export default function ItemCaches() {
+  let match = useRouteMatch();
+
+  return (
+    <div>
+      <Switch>
+        <Route path={`${match.path}/:page`}>
+          <ItemCachesWithPage match={match} />
+        </Route>
+        <Route path={match.path}>
+          <ItemCachesWithPage match={match} />
+        </Route>
+      </Switch>
+    </div>
+  );
+}
+
+function ItemCachesWithPage(props) {
+  const match = props.match;
+  const { page = "1" } = useParams();
+  const itemsPerPage = 50;
   const [elite, setElite] = useState(false);
   const [buyNow, setBuyNow] = useState(false);
   const sortByOptions = ["None", "Price", "Rarity"];
@@ -32,11 +54,14 @@ export default function ItemCaches() {
         query.lessThanOrEqualTo("rarity", 500);
       }
       if (buyNow) {
-        query.notEqualTo("price", null)
+        query.notEqualTo("price", null);
       }
+      query.limit(itemsPerPage);
+      query.skip((parseInt(page) - 1) * itemsPerPage);
+      query.withCount();
       return query;
     },
-    [elite, buyNow, sortByOption]
+    [page, elite, buyNow, sortByOption]
   );
 
   function changeElite() {
@@ -53,7 +78,7 @@ export default function ItemCaches() {
 
   return (
     <Container>
-      <PageHeader title="ITEM CACHES"/>
+      <PageHeader title={"ITEM CACHES (" + data.count + ")"} />
       <Label>
         <input type="checkbox" checked={elite} onChange={changeElite} />
         Elite
@@ -72,7 +97,19 @@ export default function ItemCaches() {
           placeholder="Select an option"
         />
       </Label>
-      <ItemCachesWith data={data} error={error} isLoading={isLoading} />
+      <PageNavigation
+        page={page}
+        match={match}
+        data={data}
+        itemsPerPage={itemsPerPage}
+      />
+      <ItemCachesWith data={data.results} error={error} isLoading={isLoading} />
+      <PageNavigation
+        page={page}
+        match={match}
+        data={data}
+        itemsPerPage={itemsPerPage}
+      />
     </Container>
   );
 }
@@ -83,6 +120,10 @@ function ItemCachesWith(props) {
   const error = props.error;
 
   if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (data === undefined) {
     return <div>Loading...</div>;
   }
 

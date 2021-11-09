@@ -3,6 +3,8 @@ import ReactDropdown from "react-dropdown";
 import { useMoralisQuery } from "react-moralis";
 import styled from "styled-components";
 import PageHeader from "../components/PageHeader";
+import { useRouteMatch, useParams, Switch, Route } from "react-router";
+import PageNavigation from "../components/PageNavigation";
 
 const Container = styled.div`
   text-align: left;
@@ -15,6 +17,26 @@ const Label = styled.label`
 `;
 
 export default function Vaults() {
+  let match = useRouteMatch();
+
+  return (
+    <div>
+      <Switch>
+        <Route path={`${match.path}/:page`}>
+          <VaultsWithPage match={match} />
+        </Route>
+        <Route path={match.path}>
+          <VaultsWithPage match={match} />
+        </Route>
+      </Switch>
+    </div>
+  );
+}
+
+function VaultsWithPage(props) {
+  const match = props.match;
+  const { page = "1" } = useParams();
+  const itemsPerPage = 50;
   const [elite, setElite] = useState(false);
   const [unopened, setUnopened] = useState(false);
   const [hasWon, setHasWon] = useState(false);
@@ -40,11 +62,14 @@ export default function Vaults() {
         query.equalTo("hasWon", true);
       }
       if (buyNow) {
-        query.notEqualTo("price", null)
+        query.notEqualTo("price", null);
       }
+      query.limit(itemsPerPage);
+      query.skip((parseInt(page) - 1) * itemsPerPage);
+      query.withCount();
       return query;
     },
-    [elite, unopened, hasWon, buyNow, sortByOption]
+    [page, elite, unopened, hasWon, buyNow, sortByOption]
   );
 
   function changeElite() {
@@ -69,7 +94,7 @@ export default function Vaults() {
 
   return (
     <Container>
-      <PageHeader title="VAULTS" />
+      <PageHeader title={"VAULTS (" + data.count + ")"} />
       <Label>
         <input type="checkbox" checked={elite} onChange={changeElite} />
         Elite
@@ -96,7 +121,19 @@ export default function Vaults() {
           placeholder="Select an option"
         />
       </Label>
-      <VaultsWith data={data} error={error} isLoading={isLoading} />
+      <PageNavigation
+        page={page}
+        match={match}
+        data={data}
+        itemsPerPage={itemsPerPage}
+      />
+      <VaultsWith data={data.results} error={error} isLoading={isLoading} />
+      <PageNavigation
+        page={page}
+        match={match}
+        data={data}
+        itemsPerPage={itemsPerPage}
+      />
     </Container>
   );
 }
@@ -107,6 +144,10 @@ function VaultsWith(props) {
   const error = props.error;
 
   if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (data === undefined) {
     return <div>Loading...</div>;
   }
 

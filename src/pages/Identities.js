@@ -1,8 +1,10 @@
 import { useState } from "react";
 import ReactDropdown from "react-dropdown";
 import { useMoralisQuery } from "react-moralis";
+import { Route, Switch, useParams, useRouteMatch } from "react-router";
 import styled from "styled-components";
 import PageHeader from "../components/PageHeader";
+import PageNavigation from "../components/PageNavigation";
 
 const Container = styled.div`
   text-align: left;
@@ -15,6 +17,26 @@ const Label = styled.label`
 `;
 
 export default function Identities() {
+  let match = useRouteMatch();
+
+  return (
+    <div>
+      <Switch>
+        <Route path={`${match.path}/:page`}>
+          <IdentitiesWithPage match={match} />
+        </Route>
+        <Route path={match.path}>
+          <IdentitiesWithPage match={match} />
+        </Route>
+      </Switch>
+    </div>
+  );
+}
+
+function IdentitiesWithPage(props) {
+  const match = props.match;
+  const { page = "1" } = useParams();
+  const itemsPerPage = 50;
   const [elite, setElite] = useState(false);
   const [unopenedVault, setUnopenedVault] = useState(false);
   const [buyNow, setBuyNow] = useState(false);
@@ -36,11 +58,14 @@ export default function Identities() {
         query.equalTo("openedBox", 0);
       }
       if (buyNow) {
-        query.notEqualTo("price", null)
+        query.notEqualTo("price", null);
       }
+      query.limit(itemsPerPage);
+      query.skip((parseInt(page) - 1) * itemsPerPage);
+      query.withCount();
       return query;
     },
-    [elite, unopenedVault, buyNow, sortByOption]
+    [page, elite, unopenedVault, buyNow, sortByOption]
   );
 
   function changeElite() {
@@ -61,7 +86,7 @@ export default function Identities() {
 
   return (
     <Container>
-      <PageHeader title="IDENTITIES"/>
+      <PageHeader title={"IDENTITIES (" + data.count + ")"} />
       <Label>
         <input type="checkbox" checked={elite} onChange={changeElite} />
         Elite
@@ -88,7 +113,19 @@ export default function Identities() {
           placeholder="Select an option"
         />
       </Label>
-      <IdentitiesWith data={data} error={error} isLoading={isLoading} />
+      <PageNavigation
+        page={page}
+        match={match}
+        data={data}
+        itemsPerPage={itemsPerPage}
+      />
+      <IdentitiesWith data={data.results} error={error} isLoading={isLoading} />
+      <PageNavigation
+        page={page}
+        match={match}
+        data={data}
+        itemsPerPage={itemsPerPage}
+      />
     </Container>
   );
 }
@@ -99,6 +136,10 @@ function IdentitiesWith(props) {
   const error = props.error;
 
   if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (data === undefined) {
     return <div>Loading...</div>;
   }
 
