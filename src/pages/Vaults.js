@@ -39,6 +39,7 @@ function VaultsWithPage(props) {
   const itemsPerPage = 50;
   const [elite, setElite] = useState(false);
   const [unopened, setUnopened] = useState(false);
+  const [unclaimedBox, setUnclaimedBox] = useState(false);
   const [hasWon, setHasWon] = useState(false);
   const [buyNow, setBuyNow] = useState(false);
   const sortByOptions = ["None", "Price", "Rarity"];
@@ -58,6 +59,9 @@ function VaultsWithPage(props) {
       if (unopened) {
         query.equalTo("openedBy", 0);
       }
+      if (unclaimedBox) {
+        query.equalTo("claimedBox", 0);
+      }
       if (hasWon) {
         query.equalTo("hasWon", true);
       }
@@ -69,7 +73,7 @@ function VaultsWithPage(props) {
       query.withCount();
       return query;
     },
-    [page, elite, unopened, hasWon, buyNow, sortByOption]
+    [page, elite, unopened, unclaimedBox, hasWon, buyNow, sortByOption]
   );
 
   function changeElite() {
@@ -78,6 +82,10 @@ function VaultsWithPage(props) {
 
   function changeUnopened() {
     setUnopened(!unopened);
+  }
+
+  function changeUnclaimedBox() {
+    setUnclaimedBox(!unclaimedBox);
   }
 
   function changeHasWon() {
@@ -104,8 +112,12 @@ function VaultsWithPage(props) {
         Unopened
       </Label>
       <Label>
+        <input type="checkbox" checked={unclaimedBox} onChange={changeUnclaimedBox} />
+        Unclaimed Item Cache
+      </Label>
+      <Label>
         <input type="checkbox" checked={hasWon} onChange={changeHasWon} />
-        Has Won
+        Has Won Among Us
       </Label>
       <Label>
         <input type="checkbox" checked={buyNow} onChange={changeBuyNow} />
@@ -168,6 +180,7 @@ function VaultsWith(props) {
             <th>Additional Item</th>
             <th>Credit Multiplier</th>
             <th>Opened By</th>
+            <th>Claimed Item Cache</th>
             <th>Has won</th>
           </tr>
           {data.map((identity) => (
@@ -198,6 +211,7 @@ function VaultsWith(props) {
               <td>{identity.get("additionalItem")}</td>
               <td>{identity.get("creditMultiplier")}</td>
               <td>{identity.get("openedBy")}</td>
+              <td>{identity.get("claimedBox")}</td>
               <td>{identity.get("hasWon")}</td>
             </tr>
           ))}
