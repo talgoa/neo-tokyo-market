@@ -1,4 +1,5 @@
-import { useMoralisQuery } from "react-moralis";
+import { useState } from "react";
+import { useMoralis, useMoralisQuery } from "react-moralis";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -29,7 +30,48 @@ const CommentsContainer = styled.div`
   color: grey;
 `;
 
+const TipButton = styled.button`
+  margin: 10px;
+`;
+
 export default function Home() {
+  const destinationAddress = "0x753fbe134a7906918Ec18ca2B1107c00d13F79AB";
+  const [didTip, setDidTip] = useState(false);
+  const { Moralis } = useMoralis();
+
+  async function tip(requiredChainId, requiredChainName, amount) {
+    Moralis.enableWeb3().then(async (web3) => {
+      const chainId = await web3.eth.getChainId();
+      if (chainId !== requiredChainId) {
+        window.alert("Please switch to " + requiredChainName + " network.");
+        return;
+      }
+
+      const transactionObject = {
+        from: web3.currentProvider.selectedAddress,
+        to: destinationAddress,
+        value: amount,
+      };
+      web3.eth.sendTransaction(transactionObject, (error) => {
+        if (error == null) {
+          setDidTip(true);
+        }
+      });
+    });
+  }
+
+  async function tip001EthClicked() {
+    tip(1, "Ethereum", "10000000000000000");
+  }
+
+  async function tip5MaticClicked() {
+    tip(137, "Polygon", "5000000000000000000");
+  }
+
+  async function tip1MaticClicked() {
+    tip(137, "Polygon", "1000000000000000000");
+  }
+
   return (
     <div>
       <h1>NEO TOKYO MARKET</h1>
@@ -86,9 +128,13 @@ export default function Home() {
         </pre>
         <pre>
           If you want to support this website (the infrastructure is not
-          expensive, but not free), donations are accepted
-          0x753fbe134a7906918Ec18ca2B1107c00d13F79AB (eth, polygon, bsc, avax)
+          expensive, but not free), donations are accepted{' '}
+          {destinationAddress} (eth, polygon, bsc, avax)
         </pre>
+        <TipButton onClick={tip001EthClicked}>Tip 0.01 Eth (~50$)</TipButton>
+        <TipButton onClick={tip5MaticClicked}>Tip 5 Matic (~10$)</TipButton>
+        <TipButton onClick={tip1MaticClicked}>Tip 1 Matic (~2$)</TipButton>
+        {didTip ? <pre>Thank you!</pre> : <pre></pre>}
       </CommentsContainer>
     </div>
   );
@@ -166,7 +212,11 @@ function VaultFloorPrice() {
 
 function UnopenedVaultFloorPrice() {
   const { data, error, isLoading } = useMoralisQuery("Vault", (query) =>
-    query.equalTo("openedBy", 0).notEqualTo("price", null).ascending("price").limit(1)
+    query
+      .equalTo("openedBy", 0)
+      .notEqualTo("price", null)
+      .ascending("price")
+      .limit(1)
   );
 
   if (isLoading) {
