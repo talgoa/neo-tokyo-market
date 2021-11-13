@@ -7,12 +7,6 @@ const LinkTo = styled.span`
   margin: 10px;
 `;
 
-/*
-const LinkToDisabled = styled.span`
-  margin: 20px;
-  color: #b3b3b3;
-`;*/
-
 const LinkContainer = styled.div`
   margin-top: 50px;
 `;
@@ -32,6 +26,14 @@ const CommentsContainer = styled.div`
 
 const TipButton = styled.button`
   margin: 10px;
+`;
+
+const News = styled.h2`
+  color: orange;
+`;
+
+const NewsPre = styled.pre`
+  color: orange;
 `;
 
 export default function Home() {
@@ -75,15 +77,28 @@ export default function Home() {
   return (
     <div>
       <h1>NEO TOKYO MARKET</h1>
-      <h2>Read before using.</h2>
-      <pre>
-        This website is in it's early stage of development. I've just gathered
-        data from different sources and put them together.
-      </pre>
-      <pre>
-        The data is updated sporadically. I need some work to automate
-        everything.
-      </pre>
+      <News>Important News!</News>
+      <NewsPre>
+        This website will be discontinued. I will join @JustTheSyme (Citizen
+        #1008) who developed{" "}
+        <a href="https://neotokyotools.com">neotokyotools.com</a> and try to
+        help there.{" "}
+      </NewsPre>
+      <NewsPre>
+        Basically we had the same idea and developped the same kind of website
+        at almost the same time...
+        <br /> I guess neotokyomarket was a bit faster and more in a "bricolage"
+        way while
+        <br /> neotokyotools looks better and also works better (data is
+        refreshed faster).
+      </NewsPre>
+      <NewsPre>
+        I will keep this website for a few more days, then it will redirect to
+        neotokyotools.
+        <br />
+        Please let me know if there is any feature here that you would be
+        missing there.
+      </NewsPre>
       <h3>
         Double check the data in official sources before buying on OpenSea!
       </h3>
@@ -128,8 +143,8 @@ export default function Home() {
         </pre>
         <pre>
           If you want to support this website (the infrastructure is not
-          expensive, but not free), donations are accepted{' '}
-          {destinationAddress} (eth, polygon, bsc, avax)
+          expensive, but not free), donations are accepted {destinationAddress}{" "}
+          (eth, polygon, bsc, avax)
         </pre>
         <TipButton onClick={tip001EthClicked}>Tip 0.01 Eth (~50$)</TipButton>
         <TipButton onClick={tip5MaticClicked}>Tip 5 Matic (~10$)</TipButton>
